@@ -1,0 +1,6 @@
+localdb/
+venv/
+sdk_pb2/
+connector_run/
+.idea/
+.env
