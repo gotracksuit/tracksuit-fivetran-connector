@@ -1,0 +1,11 @@
+version: '1'
+services:
+  fivetran-tester:
+    build: .
+    volumes:
+      - ${LOCALDB_PATH}:/data
+    environment:
+      - GRPC_HOSTNAME=${GRPC_HOSTNAME}
+    stdin_open: true
+    tty: true
+    command: ["--tester-type", "source", "--port", "50051"]
