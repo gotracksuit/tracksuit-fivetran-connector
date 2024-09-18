@@ -2,6 +2,7 @@
 
 ## Pre-requisites
 - Python 3.9 or later
+- Docker (for local testing)
 
 ## Notes
 The local testing scripts are set up for MacOS. Some commands will need to be adjusted for other operating systems 
@@ -24,7 +25,7 @@ To test locally ensure you are running the connector (see above). Then run the f
 Create a .env file in the root of the project with the following content:
 ```plaintext
 # .env
-LOCALDB_PATH=/path/fivetran-connect-py/localdb
+LOCALDB_PATH=/path/tracksuit-fivetran-connector/localdb
 GRPC_HOSTNAME=host.docker.internal
 ```
 Replace `/path/fivetran-connect-py/localdb` with the absolute path to the `localdb` directory in this repo.
@@ -38,8 +39,7 @@ You can run the following commands to create the required .env file:
   echo "GRPC_HOSTNAME=host.docker.internal" >> .env
 ```
 
-```bash
-docker compose build
+```ba
 docker compose run fivetran-connector
 ```
 
