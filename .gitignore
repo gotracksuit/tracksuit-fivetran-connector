@@ -4,3 +4,4 @@ sdk_pb2/
 connector_run/
 .idea/
 .env
+*.iml

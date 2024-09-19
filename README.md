@@ -2,7 +2,7 @@
 
 ## Pre-requisites
 - Python 3.9 or later
-- Docker (for local testing)
+- Docker 4.23.0 or later (for local testing)
 
 ## Notes
 The local testing scripts are set up for MacOS. Some commands will need to be adjusted for other operating systems 
@@ -39,7 +39,7 @@ You can run the following commands to create the required .env file:
   echo "GRPC_HOSTNAME=host.docker.internal" >> .env
 ```
 
-```ba
+```bash
 docker compose run fivetran-connector
 ```
 
