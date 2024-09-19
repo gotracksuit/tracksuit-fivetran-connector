@@ -40,7 +40,7 @@ You can run the following commands to create the required .env file:
 ```
 
 ```bash
-docker compose run fivetran-connector
+docker compose run fivetran-tester
 ```
 
 Once running you will be prompted to enter the required information to test the connector.
