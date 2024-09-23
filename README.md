@@ -20,7 +20,7 @@ sh run.sh
 ```
 
 ## Local Testing
-To test locally ensure you are running the connector (see above). Then run the following command:
+To test locally ensure you are running the connector (see above).
 
 Create a .env file in the root of the project with the following content:
 ```plaintext
