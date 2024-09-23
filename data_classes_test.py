@@ -1,52 +1,55 @@
 import unittest
-from data_classes import CategoryInfoApi, GeographyApi, FunnelMetricApi, FunnelMetricsApi, FunnelMetrics
+from data_classes import json_to_funnel_metrics, FunnelMetrics
 
-class TestFunnelMetricsApi(unittest.TestCase):
-    def test_to_funnel_metrics(self):
-        category = CategoryInfoApi(id=1, name="Category1")
-        geography = GeographyApi(id=1, name="Geography1")
-        metrics = [
-            FunnelMetricApi(
-                waveDate="2024-06-01",
-                brandId=101,
-                brandName="Brand1",
-                isAccountBrand=True,
-                questionType="UNPROMPTED_AWARENESS",
-                percentage=50.0,
-                population=1000
-            )
-        ]
-        funnel_metrics_api = FunnelMetricsApi(
-            accountBrandId=1,
-            brandName="Brand1",
-            category=category,
-            geography=geography,
-            metrics=metrics,
-            sampleSizeQuality="High"
-        )
+class TestFunnelMetricsTransforms(unittest.TestCase):
+    def setUp(self):
+        self.sample_json = {
+            "accountBrandId": 123,
+            "category": {
+                "id": 1,
+                "name": "Beverages"
+            },
+            "geography": {
+                "id": 10,
+                "name": "USA"
+            },
+            "metrics": [
+                {
+                    "accountBrandId": 123,
+                    "brandId": 456,
+                    "brandName": "Coke",
+                    "filter": "All",
+                    "filterType": "None",
+                    "waveDate": "2023-08-01",
+                    "questionType": "Preference",
+                    "category": "Beverages",
+                    "geography": "USA",
+                    "base": 100,
+                    "weight": 1.5,
+                    "baseWeight": 1.0,
+                    "percentage": 50.0
+                }
+            ]
+        }
 
-        result = funnel_metrics_api.to_funnel_metrics()
 
-        expected = [
-            FunnelMetrics(
-                account_brand_id=1,
-                wave_date="2024-06-01",
-                brand_id=101,
-                brand_name="Brand1",
-                is_account_brand="True",
-                question_type="UNPROMPTED_AWARENESS",
-                filter="",
-                percentage=50.0,
-                population=1000,
-                category_id=1,
-                category_name="Category1",
-                geography_id=1,
-                geography_name="Geography1",
-                sample_size_quality="High"
-            )
-        ]
+    def test_json_to_funnel_metrics(self):
+        result = json_to_funnel_metrics(self.sample_json)
 
-        self.assertEqual(result, expected)
+        metric = result[0]
+        self.assertEqual(metric.account_brand_id, 123)
+        self.assertEqual(metric.brand_id, 456)
+        self.assertEqual(metric.brand_name, "Coke")
+        self.assertEqual(metric.filter, "All")
+        self.assertEqual(metric.filter_type, "None")
+        self.assertEqual(metric.wave_date, "2023-08-01")
+        self.assertEqual(metric.question_type, "Preference")
+        self.assertEqual(metric.category_name, "Beverages")
+        self.assertEqual(metric.geography_name, "USA")
+        self.assertEqual(metric.base, 100)
+        self.assertEqual(metric.weight, 1.5)
+        self.assertEqual(metric.base_weight, 1.0)
+        self.assertEqual(metric.percentage, 50.0)
 
 if __name__ == '__main__':
     unittest.main()
