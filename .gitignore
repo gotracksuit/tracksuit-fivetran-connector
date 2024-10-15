@@ -6,3 +6,4 @@ protos/
 .idea/
 .env
 *.iml
+__pycache__/
