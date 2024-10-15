@@ -2,6 +2,7 @@ localdb/
 venv/
 sdk_pb2/
 connector_run/
+protos/
 .idea/
 .env
 *.iml
