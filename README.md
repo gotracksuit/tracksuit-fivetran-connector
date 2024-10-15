@@ -9,7 +9,7 @@ The local testing scripts are set up for MacOS. Some commands will need to be ad
 
 ## Building and Running the Connector
 
-Run the build.sh file to install python dependencies in virtual environment. (Note: this will set up a virtual environment and install the project dependencies)
+Run the build.sh file to install python dependencies in virtual environment. 
 ```bash
 sh build.sh
 ```

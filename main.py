@@ -1,15 +1,13 @@
+from metric_syncer import MetricSyncer, MetricSyncerRepo
 import grpc
 from concurrent import futures
 import json
 import sys
 
-from api import Api
-
 sys.path.append('sdk_pb2')
 
-from sdk_pb2 import connector_sdk_pb2_grpc
-from sdk_pb2 import common_pb2
-from sdk_pb2 import connector_sdk_pb2
+
+from sdk_pb2 import connector_sdk_pb2, common_pb2, connector_sdk_pb2_grpc  # noqa: E402
 
 
 class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
@@ -40,22 +38,21 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
         table_list = common_pb2.TableList()
 
         t1 = table_list.tables.add(name="funnel_metrics")
-        t1.columns.add(name="id", type=common_pb2.DataType.INT, primary_key=True)
+        t1.columns.add(name="id", type=common_pb2.DataType.STRING,
+                       primary_key=True)
         t1.columns.add(name="account_brand_id", type=common_pb2.DataType.INT)
         t1.columns.add(name="brand_id", type=common_pb2.DataType.INT)
         t1.columns.add(name="brand_name", type=common_pb2.DataType.STRING)
         t1.columns.add(name="filter", type=common_pb2.DataType.STRING)
         t1.columns.add(name="filter_type", type=common_pb2.DataType.STRING)
         t1.columns.add(name="wave_date", type=common_pb2.DataType.STRING)
-        t1.columns.add(name="question_type", type=common_pb2.DataType.STRING)
-        t1.columns.add(name="category_id", type=common_pb2.DataType.INT)
         t1.columns.add(name="category_name", type=common_pb2.DataType.STRING)
-        t1.columns.add(name="geography_id", type=common_pb2.DataType.INT)
         t1.columns.add(name="geography_name", type=common_pb2.DataType.STRING)
-        t1.columns.add(name="base", type=common_pb2.DataType.STRING)
+        t1.columns.add(name="base", type=common_pb2.DataType.INT)
         t1.columns.add(name="weight", type=common_pb2.DataType.DOUBLE)
         t1.columns.add(name="base_weight", type=common_pb2.DataType.DOUBLE)
         t1.columns.add(name="percentage", type=common_pb2.DataType.DOUBLE)
+        t1.columns.add(name="question_type", type=common_pb2.DataType.STRING)
 
         return connector_sdk_pb2.SchemaResponse(without_schema=table_list)
 
@@ -74,18 +71,20 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
 
         jwt_token = request.configuration.get("jwt", "")
 
-        if True:
-            operation = connector_sdk_pb2.Operation()
-            funnel_metrics = Api(jwt_token).get_funnel_metrics_for_initial_sync("2024-04-01", "2024-06-01")
+        operation = connector_sdk_pb2.Operation()
+        repo = MetricSyncerRepo(jwt_token)
+        funnel_metrics = MetricSyncer(
+            repo).sync_for(None, "2024-07-01")
 
-            for metric in funnel_metrics:
-                print(f"Upserting record {metric.brand_name}")
+        for metric in funnel_metrics:
+            try:
+                print(f"Upserting record for {metric}")
                 record = connector_sdk_pb2.Record()
                 record.type = common_pb2.OpType.UPSERT
                 record.table_name = "funnel_metrics"
 
                 val_id = common_pb2.ValueType()
-                val_id.int = metric.id
+                val_id.string = metric.id
                 record.data["id"].CopyFrom(val_id)
 
                 val_account_brand_id = common_pb2.ValueType()
@@ -112,20 +111,16 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
                 val_wave_date.string = metric.wave_date
                 record.data["wave_date"].CopyFrom(val_wave_date)
 
-                val_population = common_pb2.ValueType()
-                val_population.int = metric.population
-                record.data["population"].CopyFrom(val_population)
-
                 val_category = common_pb2.ValueType()
-                val_category.int = metric.category
-                record.data["category"].CopyFrom(val_category)
+                val_category.string = metric.category_name
+                record.data["category_name"].CopyFrom(val_category)
 
                 val_geography = common_pb2.ValueType()
-                val_geography.int = metric.geography
-                record.data["geography"].CopyFrom(val_geography)
+                val_geography.string = metric.geography_name
+                record.data["geography_name"].CopyFrom(val_geography)
 
                 val_base = common_pb2.ValueType()
-                val_base.string = metric.base
+                val_base.int = metric.base
                 record.data["base"].CopyFrom(val_base)
 
                 val_weight = common_pb2.ValueType()
@@ -145,8 +140,10 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
                 record.data["question_type"].CopyFrom(val_question_type)
 
                 operation.record.CopyFrom(record)
-                print("Upserting now record")
                 yield connector_sdk_pb2.UpdateResponse(operation=operation)
+                print("Record upserted")
+            except Exception as e:
+                print(f"error upserting record {e}")
 
         log = connector_sdk_pb2.LogEntry()
         log.level = connector_sdk_pb2.LogLevel.INFO
@@ -155,7 +152,8 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
 
 def start_server():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    connector_sdk_pb2_grpc.add_ConnectorServicer_to_server(ConnectorService(), server)
+    connector_sdk_pb2_grpc.add_ConnectorServicer_to_server(
+        ConnectorService(), server)
     server.add_insecure_port('[::]:50051')
     server.start()
     print("Server started...")

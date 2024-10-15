@@ -4,3 +4,7 @@ idna==3.10
 PyJWT==2.9.0
 requests==2.32.3
 urllib3==2.2.3
+
+python-dateutil~=2.9.0.post0
+grpcio~=1.60.1
+pytest~=8.3.3

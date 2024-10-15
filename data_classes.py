@@ -1,6 +1,7 @@
-from typing import List, Literal
-from dataclasses import dataclass, field
+from typing import List
+from dataclasses import dataclass
 from uuid import uuid4
+from hashlib import sha256
 
 
 @dataclass
@@ -20,20 +21,21 @@ class FunnelMetrics:
     percentage: float
     question_type: str
 
+
 def json_to_funnel_metrics(json) -> List[FunnelMetrics]:
     funnel_metrics = []
     for metric in json['metrics']:
-        unique_id_combination = (
-            json['accountBrandId'],
-            metric['brandId'],
+        unique_id_combination = "".join((
+            str(json['accountBrandId']),
+            str(metric['brandId']),
             metric['questionType'],
             metric['category'],
             metric['geography'],
             metric['waveDate']
-        )
+        ))
 
         funnel_metrics.append(FunnelMetrics(
-            id=hash(unique_id_combination),
+            id=sha256(unique_id_combination.encode()).hexdigest(),
             account_brand_id=json['accountBrandId'],
             brand_id=metric['brandId'],
             brand_name=metric['brandName'],
@@ -50,5 +52,3 @@ def json_to_funnel_metrics(json) -> List[FunnelMetrics]:
         ))
 
     return funnel_metrics
-
-
