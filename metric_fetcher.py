@@ -4,7 +4,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from concurrent.futures import ThreadPoolExecutor
 import jwt
-
+import os
 from data_classes import json_to_funnel_metrics
 
 
@@ -21,9 +21,13 @@ def decode_jwt(token):
 class MetricFetcherRepo:
     def __init__(self, jwt_token):
         self.session = requests.Session()
-        self.token = decode_jwt(jwt_token)  # TODO: naming
-        # TODO: PROD URL move to config
-        self.base_url = "https://dev.api.gotracksuit.com/v1"
+        self.token = decode_jwt(jwt_token)
+        if os.getenv("ENV") == "local":
+            print("Using local environment")
+            self.base_url = "https://dev.api.gotracksuit.com/v1"
+        else:
+            print("Using prod environment")
+            self.base_url = "https://prod.api.gotracksuit.com/v1"
 
         self.session.headers.update({
             'Authorization': f'Bearer {jwt_token}',
@@ -31,9 +35,7 @@ class MetricFetcherRepo:
         })
 
     def fetch_account_brand_ids_for_client(self):
-        account_brand_ids = self.token.get('accountBrands', [])
-        print(f"valid account brand ids, {account_brand_ids}")
-        return account_brand_ids
+        return self.token.get('accountBrands', [])
 
     def fetch_available_dates(self, account_brand_id):
         print(
