@@ -2,6 +2,7 @@ from typing import List
 from dataclasses import dataclass
 from uuid import uuid4
 from hashlib import sha256
+from json import dumps
 
 
 @dataclass
@@ -25,17 +26,9 @@ class FunnelMetrics:
 def json_to_funnel_metrics(json) -> List[FunnelMetrics]:
     funnel_metrics = []
     for metric in json['metrics']:
-        unique_id_combination = "".join((
-            str(json['accountBrandId']),
-            str(metric['brandId']),
-            metric['questionType'],
-            metric['category'],
-            metric['geography'],
-            metric['waveDate']
-        ))
-
+        id = sha256(dumps(metric, sort_keys=True).encode()).hexdigest()
         funnel_metrics.append(FunnelMetrics(
-            id=sha256(unique_id_combination.encode()).hexdigest(),
+            id=id,
             account_brand_id=json['accountBrandId'],
             brand_id=metric['brandId'],
             brand_name=metric['brandName'],
@@ -52,3 +45,37 @@ def json_to_funnel_metrics(json) -> List[FunnelMetrics]:
         ))
 
     return funnel_metrics
+
+
+def mock_funnel_metric(
+        id="1",
+        account_brand_id=2,
+        brand_id=1,
+        brand_name="brand_name",
+        filter="filter",
+        filter_type="filter_type",
+        wave_date="10/10/2020",
+        category_name="category_name",
+        geography_name="geography_name",
+        base=1,
+        weight=1.0,
+        base_weight=1.0,
+        percentage=1.0,
+        question_type="question_type"
+):
+    return FunnelMetrics(
+        id=id,
+        account_brand_id=account_brand_id,
+        brand_id=brand_id,
+        brand_name=brand_name,
+        filter=filter,
+        filter_type=filter_type,
+        wave_date=wave_date,
+        category_name=category_name,
+        geography_name=geography_name,
+        base=base,
+        weight=weight,
+        base_weight=base_weight,
+        percentage=percentage,
+        question_type=question_type
+    )
