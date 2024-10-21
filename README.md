@@ -35,7 +35,7 @@ You can run the following commands to create the required .env file:
   touch .env
   sed -i '' -e '/^LOCALDB_PATH=/d' .env
   sed -i '' -e '/^GRPC_HOSTNAME=/d' .env
-  sed -i '' -e '/^ENV=/d' .env
+  sed -i '' -e '/^ENV=/deyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbklkIjoiNWU5Zjg2Y2EtYmIxOS00Nzk5LTlmMTAtOTcyY2I1NjQyOTI5Iiwic3ViIjoiZDY4OTkzNWItNGQ5MC00OTgzLWExN2QtOGRkNjg3ODc0ZGQwIiwibmFtZSI6IkZpdmV0cmFuIHRlc3RpbmcgKExlaWdodG9uKSIsImFjY291bnRCcmFuZHMiOlsxMTIwMCwxMTE5NCwxMTE5OSwxMTM3MCwxMTM1MSwxMTMzN10sImlhdCI6MTcyNjcxNjQyMiwiZXhwIjoxNzQwNzQwNDAwfQ.Jb5OcwID0Y6N8FGeQiKPlBMwAiDQrYNcJQpF3Ok-d_0' .env
   echo "LOCALDB_PATH=$(pwd)/localdb" >> .env
   echo "GRPC_HOSTNAME=host.docker.internal" >> .env
   echo "ENV=local" >> .env
