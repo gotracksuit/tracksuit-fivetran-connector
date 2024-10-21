@@ -42,7 +42,6 @@ def test_will_not_create_a_checkpoint_if_there_are_less_than_100_metrics():
 
     state = {}
     last_known_synced_record = None
-    to_sync = "2020-12-01"
 
     list(syncer.sync_metrics(
         metrics, state, last_known_synced_record))
@@ -126,4 +125,4 @@ def test_sets_the_last_known_synced_record_to_none_when_the_sync_is_successful()
     list(syncer.sync(
         metrics, state, last_known_synced_record, to_sync))
 
-    assert state["last_known_synced_record"] == None
+    assert state["last_known_synced_record"] is None

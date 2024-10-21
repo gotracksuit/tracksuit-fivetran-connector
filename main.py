@@ -78,7 +78,7 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
         return connector_sdk_pb2.SchemaResponse(without_schema=table_list)
 
     def Update(self, request, context):
-        state_json = {}
+        state = {}
         if request.HasField('state_json'):
             state_json = request.state_json
             state = json.loads(state_json)
@@ -109,7 +109,7 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
             account_brand_ids_requested)
 
         wave_range = fetcher.wave_range_to_sync(
-            account_brand_ids, '2024-08-01')  # TODO: set last_date_synced_to
+            account_brand_ids, last_date_synced_to)
 
         print("Wave Range to sync: ", wave_range)
 
