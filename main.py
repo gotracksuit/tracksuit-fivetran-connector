@@ -1,5 +1,5 @@
 from metric_fetcher import MetricFetcher, MetricFetcherRepo
-from metric_syncer import MetricSyncer
+from metric_syncer import MetricSyncer, MetricSyncerRepo
 import grpc
 from concurrent import futures
 import json
@@ -102,7 +102,8 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
         fetcher = MetricFetcher(fetcherRepo)
 
         operation = connector_sdk_pb2.Operation()
-        syncer = MetricSyncer(common_pb2, connector_sdk_pb2, operation)
+        syncerRepo = MetricSyncerRepo(common_pb2, connector_sdk_pb2, operation)
+        syncer = MetricSyncer(syncerRepo)
 
         account_brand_ids = fetcher.account_brand_ids_to_sync(
             account_brand_ids_requested)
