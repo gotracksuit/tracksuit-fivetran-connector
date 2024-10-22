@@ -85,11 +85,16 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
 
         jwt_token = request.configuration.get("jwt", "")
         account_brand_ids_requested = request.configuration.get(
-            "account_brand_ids", None)
+            "account_brand_ids", '')
 
-        if account_brand_ids_requested is not None:
+        if account_brand_ids_requested == "":
+            account_brand_ids_requested = None
+
+        print(account_brand_ids_requested)
+        if account_brand_ids_requested:
             account_brand_ids_requested = account_brand_ids_requested.split(
                 ",")
+        print(account_brand_ids_requested)
 
         filters = request.configuration.get("filters", None)
 

@@ -128,19 +128,6 @@ class TestFetchFor:
         assert mock_funnel_metric_acc_2 in result
         assert len(result) == 2
 
-    def test_sets_filter_type_to_an_empty_string_if_it_is_all(self):
-        mock_repo = Mock(spec=MetricFetcherRepo)
-        mock_funnel_metric_acc_1 = mock_funnel_metric(account_brand_id=1)
-
-        mock_repo.fetch_account_brand_ids_for_client.return_value = [1]
-        mock_repo.fetch_funnel_data.return_value = [mock_funnel_metric_acc_1]
-
-        MetricFetcher(repo=mock_repo).fetch_for(
-            [1], "2020-02-01", "2020-03-01", "All")
-
-        mock_repo.fetch_funnel_data.assert_called_with(
-            1, "2020-02-01", "2020-03-01", "")
-
     def test_skips_accounts_if_they_fail_without_a_timeout(self):
         mock_repo = Mock(spec=MetricFetcherRepo)
         mock_funnel_metric_1 = mock_funnel_metric(account_brand_id=1)

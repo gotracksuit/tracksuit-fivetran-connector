@@ -54,10 +54,10 @@ class MetricFetcherRepo:
         print(
             f"Fetching data for {account_brand_id} between {start_date}--{end_date}"
         )
-
-        response = self.session.get(
-            f"{self.base_url}/bulk/funnel/{account_brand_id}?waveStartDate={start_date}&waveEndDate={end_date}&filterType={filter_type}"
-        )
+        filter_query_param = f"&filterType={filter_type}" if filter_type != "All" else ""
+        url = f"{self.base_url}/bulk/funnel/{account_brand_id}?waveStartDate={start_date}&waveEndDate={end_date}{filter_query_param}"
+        print(url)
+        response = self.session.get(url)
 
         try:
             response.raise_for_status()
@@ -139,27 +139,15 @@ class MetricFetcher:
 
         return {"from": self.__add_one_month(last_synced_date), "to": sorted_dates[-1]}
 
-    def __get_funnel_data(self, account_brand_id, from_date, to_date, filter_type):
-        print(f"syncing metrics for {account_brand_id}")
-        return self.repo.fetch_funnel_data(
-            account_brand_id,
-            from_date,
-            to_date,
-            filter_type
-        )
-
     def fetch_for(self, account_brand_ids, from_date, to_date, filter_type):
         print(
             f"Fetching account brands {account_brand_ids} between {from_date}--{to_date}, filtered by {filter_type}")
-
-        if filter_type == "All":
-            filter_type = ""
 
         results = []
         with ThreadPoolExecutor(max_workers=10) as executor:
             futures = {
                 executor.submit(
-                    self.__get_funnel_data,
+                    self.repo.fetch_funnel_data,
                     account_brand_id,
                     from_date,
                     to_date,
