@@ -43,7 +43,7 @@ class MetricFetcherRepo:
         )
 
         filter_response = self.session.get(
-            f"{self.base_url}/funnel/filters?accountBrandId={account_brand_id}"
+            f"{self.base_url}/funnel/filters?accountBrandId={account_brand_id}&includeIncompleteMonths=false"
         )
         filter_response.raise_for_status()
         wave_dates = filter_response.json().get('waveDates', [])
@@ -56,7 +56,6 @@ class MetricFetcherRepo:
         )
         filter_query_param = f"&filterType={filter_type}" if filter_type != "All" else ""
         url = f"{self.base_url}/bulk/funnel/{account_brand_id}?waveStartDate={start_date}&waveEndDate={end_date}{filter_query_param}"
-        print(url)
         response = self.session.get(url)
 
         try:
