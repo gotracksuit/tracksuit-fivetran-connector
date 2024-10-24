@@ -13,6 +13,7 @@ Tracksuit is a Brand Tracker. This connector provides the ability to sync the fu
 
 ## Features
 
+- Sync funnel metrics monthly
 - Filter metrics by Gender, Age, Total or All
 - Select Account to be synced or sync all avaliable accounts
 
