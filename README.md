@@ -1,4 +1,4 @@
-# Python Connector Example
+# Python Connector
 
 ## Pre-requisites
 - Python 3.9 or later
