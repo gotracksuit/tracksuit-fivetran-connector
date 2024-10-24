@@ -27,7 +27,7 @@ class MetricFetcherRepo:
             self.base_url = "https://dev.api.gotracksuit.com/v1"
         else:
             print("Using prod environment")
-            self.base_url = "https://prod.api.gotracksuit.com/v1"
+            self.base_url = "https://api.gotracksuit.com/v1"
 
         self.session.headers.update({
             'Authorization': f'Bearer {jwt_token}',
