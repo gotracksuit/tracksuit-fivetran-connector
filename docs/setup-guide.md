@@ -9,13 +9,17 @@ hidden: false
 
 Follow our setup guide to connect Tracksuit to Fivetran.
 
+> NOTE: This connector is [partner-built](/docs/partner-built-program). For any questions related
+> to Tracksuit connector and its documentation, contact Tracksuit by raising an issue in the
+> [Tracksuit Fivetran Connector](https://github.com/gotracksuit/tracksuit-fivetran-connector) GitHub repository.
+
 -----
 
 ## Prerequisites
 
 To connect your Tracksuit account to Fivetran, you need to:
 - Have a valid JWT token for the accounts you would like to sync.
-
+- A Fivetran account with the [Connector Creator](/docs/using-fivetran/fivetran-dashboard/account-management/role-based-access-control#rbacpermissions) permissions.
 ---
 
 ## Setup instructions
@@ -32,15 +36,20 @@ To authorize Fivetran to connect to your Tracksuit app, follow these instruction
 ### <span class="step-item">Finish Fivetran configuration </span>
 
 {Required}
-1. Go to the [connector setup form](/docs/using-fivetran/fivetran-dashboard/connectors#addanewconnector).
-2. Select Tracksuit from the connectors then add the relevent fields.
-1. Click **Save & Test**. Fivetran will take it from here and sync your data from your {Connector Name} account.
+### <span class="step-item">Finish Fivetran configuration </span>
 
-### Setup tests (applies to all connectors but Applications connectors)
+1. Log in to your Fivetran account.
+2. Go to the [**Connectors** page](https://fivetran.com/dashboard/connectors), and then click **+ Add connector**.
+3. Select **Tracksuit** as the connector type.
+4. Enter the following connection configurations for you Tracksuit connector:
+    * JWT for Tracksuit's public API
+    * Account IDs to sync, or leave it blank to sync all
+    * Filter to apply
+7. Click **Save & Test**.
 
-Fivetran performs the following {Connector} connection tests:
+### Setup tests
+
+Fivetran performs the following Tracksuit connection tests:
 - Validate the JWT provided can query the Tracksuit API
-- Validate the cliet has access to the account brands selected in the forum. Any brands that you do not have access to will be skipped quietly
-- Validate that there is any data to be synced
 
 ---
