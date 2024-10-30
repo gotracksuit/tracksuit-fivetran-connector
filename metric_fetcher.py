@@ -65,7 +65,7 @@ class MetricFetcherRepo:
                 "request timed out, the sync has been aborted. If the issue persists, please try again later")
         except Exception:
             print(
-                "failed to retrieve data for {account_brand_id} between {start_date}--{end_date}, sync has been skipped")
+                f"failed to retrieve data for {account_brand_id} between {start_date}--{end_date}, sync has been skipped")
             return []
 
         print(
@@ -102,7 +102,7 @@ class MetricFetcher:
 
             valid_accounts_to_sync.append(account_brand_id)
 
-        print(f"syncing account brands {valid_accounts_to_sync}")
+        print(f"valid account brands {valid_accounts_to_sync}")
         return valid_accounts_to_sync
 
     def wave_range_to_sync(self, account_brand_ids, last_synced_date):

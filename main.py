@@ -48,12 +48,25 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
         return form_fields
 
     def Test(self, request, context):
-        configuration = request.configuration
-        # Name of the test to be run
         test_name = request.name
-        print("Configuration: ", configuration)
         print("Test name: ", test_name)
-        return common_pb2.TestResponse(success=True)
+        if test_name == "connection_test":
+            return common_pb2.TestResponse(success=True)
+
+        if test_name == "connect":
+            try:
+                jwt_token = request.configuration.get("jwt", "")
+                account_brand_ids_requested = self.account_brand_ids_requested = request.configuration.get(
+                    "account_brand_ids", '')
+                fetcherRepo = MetricFetcherRepo(jwt_token)
+                fetcher = MetricFetcher(fetcherRepo)
+
+                fetcher.account_brand_ids_to_sync(
+                    account_brand_ids_requested)
+
+                return common_pb2.TestResponse(success=True)
+            except Exception as e:
+                return common_pb2.TestResponse(success=False, failure=str(e))
 
     def Schema(self, request, context):
         table_list = common_pb2.TableList()
@@ -77,6 +90,12 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
 
         return connector_sdk_pb2.SchemaResponse(without_schema=table_list)
 
+    def account_brand_ids_requested(self, account_brand_ids):
+        if account_brand_ids == "":
+            return None
+
+        return account_brand_ids.split(",")
+
     def Update(self, request, context):
         state = {}
         if request.HasField('state_json'):
@@ -84,16 +103,9 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
             state = json.loads(state_json)
 
         jwt_token = request.configuration.get("jwt", "")
-        account_brand_ids_requested = request.configuration.get(
-            "account_brand_ids", '')
+        account_brand_ids_requested = self.account_brand_ids_requested(request.configuration.get(
+            "account_brand_ids", ''))
 
-        if account_brand_ids_requested == "":
-            account_brand_ids_requested = None
-
-        print(account_brand_ids_requested)
-        if account_brand_ids_requested:
-            account_brand_ids_requested = account_brand_ids_requested.split(
-                ",")
         print(account_brand_ids_requested)
 
         filters = request.configuration.get("filters", None)
