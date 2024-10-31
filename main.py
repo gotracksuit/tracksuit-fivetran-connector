@@ -51,13 +51,10 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
         test_name = request.name
         print("Test name: ", test_name)
         if test_name == "connection_test":
-            return common_pb2.TestResponse(success=True)
-
-        if test_name == "connect":
             try:
                 jwt_token = request.configuration.get("jwt", "")
-                account_brand_ids_requested = self.account_brand_ids_requested = request.configuration.get(
-                    "account_brand_ids", '')
+                account_brand_ids_requested = self.account_brand_ids_requested(request.configuration.get(
+                    "account_brand_ids", ''))
                 fetcherRepo = MetricFetcherRepo(jwt_token)
                 fetcher = MetricFetcher(fetcherRepo)
 
