@@ -35,9 +35,6 @@ To authorize Fivetran to connect to your Tracksuit app, follow these instruction
 
 ### <span class="step-item">Finish Fivetran configuration </span>
 
-{Required}
-### <span class="step-item">Finish Fivetran configuration </span>
-
 1. Log in to your Fivetran account.
 2. Go to the [**Connectors** page](https://fivetran.com/dashboard/connectors), and then click **+ Add connector**.
 3. Select **Tracksuit** as the connector type.
@@ -51,5 +48,6 @@ To authorize Fivetran to connect to your Tracksuit app, follow these instruction
 
 Fivetran performs the following Tracksuit connection tests:
 - Validate the JWT provided can query the Tracksuit API
+- Validate the client has access to the account brands selected in the forum. Any brands that you do not have access to will be skipped quietly
 
 ---

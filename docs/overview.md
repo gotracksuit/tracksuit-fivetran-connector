@@ -13,9 +13,12 @@ Tracksuit is a Brand Tracker. This connector provides the ability to sync the fu
 
 ## Features
 
-- Sync funnel metrics monthly
-- Filter metrics by Gender, Age, Total or All
-- Select Account to be synced or sync all avaliable accounts
+{% featureTable connector="singlestore" %}
+Capture Deletes: All tables and fields
+Column hashing:
+API Configurable:
+Private networking: AWS Private Link, Azure Private Link, GCP Private Service Connect
+{% /featureTable %}
 
 ------------------
 
@@ -28,8 +31,8 @@ Follow our [step-by-step Tracksuit setup guide](/docs/setup-guide.md) to connect
 
 Once Fivetran is connected to your Tracksuit database, the connector fetches an initial
 consistent snapshot of all of your funnel metrics. Once the initial sync is complete this
-connector will update the new funnel metrics as surveys are conducted. Set the sync time to 24hrs
-as survey results are updated monthly.
+connector will update the new funnel metrics as surveys are conducted. Tracksuit sync's the survey responses
+on the 7th of each month, because of this we recommend using a long sync frequency for the connector.
 
 ------------------
 
