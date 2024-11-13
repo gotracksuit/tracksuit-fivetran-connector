@@ -5,8 +5,11 @@ from concurrent import futures
 import json
 import sys
 from dotenv import load_dotenv
+import os
 
-sys.path.append('sdk_pb2')
+script_dir = os.path.dirname(os.path.abspath(__file__))
+target_path = os.path.join(script_dir, 'sdk_pb2')
+sys.path.append(target_path)
 
 from sdk_pb2 import connector_sdk_pb2, common_pb2, connector_sdk_pb2_grpc  # noqa: E402
 
