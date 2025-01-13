@@ -4,6 +4,7 @@ import grpc
 from concurrent import futures
 import json
 import sys
+import argparse
 from dotenv import load_dotenv
 import os
 
@@ -115,12 +116,12 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
         last_date_synced_to = state.get(
             "last_date_synced_to", None)
 
-        fetcherRepo = MetricFetcherRepo(jwt_token)
-        fetcher = MetricFetcher(fetcherRepo)
+        fetcher_repo = MetricFetcherRepo(jwt_token)
+        fetcher = MetricFetcher(fetcher_repo)
 
         operation = connector_sdk_pb2.Operation()
-        syncerRepo = MetricSyncerRepo(common_pb2, connector_sdk_pb2, operation)
-        syncer = MetricSyncer(syncerRepo)
+        syncer_repo = MetricSyncerRepo(common_pb2, connector_sdk_pb2, operation)
+        syncer = MetricSyncer(syncer_repo)
 
         account_brand_ids = fetcher.account_brand_ids_to_sync(
             account_brand_ids_requested)
@@ -137,12 +138,15 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
 
 
 def start_server():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--port", type=int, default=50051, help="The server port")
+    args = parser.parse_args()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     connector_sdk_pb2_grpc.add_ConnectorServicer_to_server(
         ConnectorService(), server)
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port(f'[::]:{args.port}')
     server.start()
-    print("Server started...")
+    print(f"Server started at port {args.port}...")
     server.wait_for_termination()
     print("Server terminated.")
 
