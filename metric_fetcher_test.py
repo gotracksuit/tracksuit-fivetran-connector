@@ -41,22 +41,25 @@ class TestWaveRangeToSync:
 
         assert result == {"from": "2020-02-01", "to": "2020-02-01"}
 
-    def test_raises_if_no_wave_dates_for_any_accounts_past_the_last_synced_date(self):
+    def test_returns_none_if_no_wave_dates_for_any_accounts_past_the_last_synced_date(self):
         mock_repo = Mock(spec=MetricFetcherRepo)
         mock_repo.fetch_account_brand_ids_for_client.return_value = [1, 2]
         mock_repo.fetch_available_dates.return_value = []
 
-        with pytest.raises(ValueError, match="there is no data for any of the account brands \\[1, 2\\] seleceted, try again later"):
-            MetricFetcher(repo=mock_repo).wave_range_to_sync([1, 2], None)
+        results = MetricFetcher(
+            repo=mock_repo).wave_range_to_sync([1, 2], None)
 
-    def test_raises_if_there_is_no_data_since_the_last_synced_date_for_any_of_the_accounts(self):
+        assert results is None
+
+    def test_returns_none_if_there_is_no_data_since_the_last_synced_date_for_any_of_the_accounts(self):
         mock_repo = Mock(spec=MetricFetcherRepo)
         mock_repo.fetch_account_brand_ids_for_client.return_value = [1, 2]
         mock_repo.fetch_available_dates.return_value = ["2020-02-01"]
 
-        with pytest.raises(ValueError, match="skipping sync for account brands \\[1, 2\\] as it does not have data since the last sync on 2020-02-01"):
-            MetricFetcher(repo=mock_repo).wave_range_to_sync(
-                [1, 2], "2020-02-01")
+        result = MetricFetcher(repo=mock_repo).wave_range_to_sync(
+            [1, 2], "2020-02-01")
+
+        assert result is None
 
     def test_filters_out_empty_wave_dates(self):
         mock_repo = Mock(spec=MetricFetcherRepo)

@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 import jwt
 import os
 from data_classes import json_to_funnel_metrics
+import warnings
 
 
 def decode_jwt(token):
@@ -125,16 +126,19 @@ class MetricFetcher:
         ])
 
         if len(sorted_dates) == 0:
-            raise ValueError(
-                f"there is no data for any of the account brands {account_brand_ids} seleceted, try again later")
+            warnings.warn(
+                f"there is no data for any of the account brands {account_brand_ids} seleceted, try again later"
+            )
+            return None
 
         if last_synced_date is None:
             return {"from": sorted_dates[0], "to": sorted_dates[-1]}
 
         if not any(date > last_synced_date for date in sorted_dates):
-            raise ValueError(
+            warnings.warn(
                 f"skipping sync for account brands {account_brand_ids} as it does not have data since the last sync on {last_synced_date}"
             )
+            return None
 
         return {"from": self.__add_one_month(last_synced_date), "to": sorted_dates[-1]}
 
