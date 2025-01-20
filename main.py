@@ -7,13 +7,13 @@ import sys
 import argparse
 from dotenv import load_dotenv
 import os
+from logger import sumoLogger
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 target_path = os.path.join(script_dir, 'sdk_pb2')
 sys.path.append(target_path)
 
 from sdk_pb2 import connector_sdk_pb2, common_pb2, connector_sdk_pb2_grpc  # noqa: E402
-
 
 load_dotenv()
 
@@ -98,47 +98,51 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
         return account_brand_ids.split(",")
 
     def Update(self, request, context):
-        state = {}
-        if request.HasField('state_json'):
-            state_json = request.state_json
-            state = json.loads(state_json)
+        try:
+            state = {}
+            if request.HasField('state_json'):
+                state_json = request.state_json
+                state = json.loads(state_json)
 
-        jwt_token = request.configuration.get("jwt", "")
-        account_brand_ids_requested = self.account_brand_ids_requested(request.configuration.get(
-            "account_brand_ids", ''))
+            jwt_token = request.configuration.get("jwt", "")
+            account_brand_ids_requested = self.account_brand_ids_requested(request.configuration.get(
+                "account_brand_ids", ''))
 
-        print(account_brand_ids_requested)
+            print(account_brand_ids_requested)
 
-        filters = request.configuration.get("filters", None)
+            filters = request.configuration.get("filters", None)
 
-        last_known_synced_record = state.get(
-            "last_known_synced_record", None)
-        last_date_synced_to = state.get(
-            "last_date_synced_to", None)
+            last_known_synced_record = state.get(
+                "last_known_synced_record", None)
+            last_date_synced_to = state.get(
+                "last_date_synced_to", None)
 
-        fetcher_repo = MetricFetcherRepo(jwt_token)
-        fetcher = MetricFetcher(fetcher_repo)
+            fetcher_repo = MetricFetcherRepo(jwt_token)
+            fetcher = MetricFetcher(fetcher_repo)
 
-        operation = connector_sdk_pb2.Operation()
-        syncer_repo = MetricSyncerRepo(
-            common_pb2, connector_sdk_pb2, operation)
-        syncer = MetricSyncer(syncer_repo)
+            operation = connector_sdk_pb2.Operation()
+            syncer_repo = MetricSyncerRepo(
+                common_pb2, connector_sdk_pb2, operation)
+            syncer = MetricSyncer(syncer_repo)
 
-        account_brand_ids = fetcher.account_brand_ids_to_sync(
-            account_brand_ids_requested)
+            account_brand_ids = fetcher.account_brand_ids_to_sync(
+                account_brand_ids_requested)
 
-        wave_range = fetcher.wave_range_to_sync(
-            account_brand_ids, last_date_synced_to)
+            wave_range = fetcher.wave_range_to_sync(
+                account_brand_ids, last_date_synced_to)
 
-        if wave_range is None:
-            return
+            if wave_range is None:
+                return
 
-        print("Wave Range to sync: ", wave_range)
+            print("Wave Range to sync: ", wave_range)
 
-        funnel_metrics = fetcher.fetch_for(
-            account_brand_ids, wave_range["from"], wave_range["to"], filters)
+            funnel_metrics = fetcher.fetch_for(
+                account_brand_ids, wave_range["from"], wave_range["to"], filters)
 
-        yield from syncer.sync(funnel_metrics, state, last_known_synced_record, wave_range["to"])
+            yield from syncer.sync(funnel_metrics, state, last_known_synced_record, wave_range["to"])
+        except Exception as e:
+            sumoLogger.error(str(e))
+            raise e
 
 
 def start_server():
