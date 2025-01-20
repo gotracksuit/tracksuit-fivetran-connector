@@ -7,7 +7,7 @@ import sys
 import argparse
 from dotenv import load_dotenv
 import os
-from logger import sumoLogger
+from logger import logger
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 target_path = os.path.join(script_dir, 'sdk_pb2')
@@ -141,7 +141,8 @@ class ConnectorService(connector_sdk_pb2_grpc.ConnectorServicer):
 
             yield from syncer.sync(funnel_metrics, state, last_known_synced_record, wave_range["to"])
         except Exception as e:
-            sumoLogger.error(str(e))
+            logger.error(
+                f"Error occurred while syncing metrics %s, account brand ids requested: %s", e, account_brand_ids_requested)
             raise e
 
 

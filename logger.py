@@ -2,24 +2,29 @@ import logging
 import requests
 
 
-class SumoLogger(logging.Handler):
-    def __init__(self, level=logging.NOTSET):
-        super().__init__(level)
-        self.endpoint_url = ""  # TODO: implement
+SUMO_LOGIC_URL = "https://collectors.au.sumologic.com/receiver/v1/http/ZaVnC4dhaV2TQKUB12dUiOO7DEirKLsOU4U6jUJRY9XIz4Bskyo4Dp6jqIy9ck6Dbk_AaS3tFqcPagLjvZQ4W5KXkn5YxRJakgF7W-D7pCznCtIkkejjvw=="
 
-    def error(self, message):
-        print("ERROR:", message)
-        self.log(logging.ERROR, message)
+
+class SumoLogger(logging.Handler):
+    def __init__(self, endpoint_url):
+        super().__init__()
+        self.endpoint_url = endpoint_url
 
     def emit(self, record):
+        log_entry = self.format(record)
         try:
-            log_entry = self.format(record)
-            headers = {
-                "Content-Type": "text/plain",
-            }
-            requests.post(self.endpoint_url, data=log_entry, headers=headers)
-        except Exception:
-            self.handleError(record)
+            print(log_entry.encode('utf-8'))
+            response = requests.post(
+                self.endpoint_url, data=log_entry.encode('utf-8'))
+            response.raise_for_status()
+
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to send log to Sumo Logic: {e}")
 
 
-sumoLogger = SumoLogger()
+logger = logging.getLogger('sumo_logger')
+logger.setLevel(logging.DEBUG)
+sumo_handler = SumoLogger(SUMO_LOGIC_URL)
+sumo_handler.setLevel(logging.DEBUG)
+
+logger.addHandler(sumo_handler)
